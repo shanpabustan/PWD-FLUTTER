@@ -1,0 +1,31 @@
+name: pwd
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.6.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  carousel_slider: ^5.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/slide.png
+    - assets/slide2.jpg
+    - assets/slide2.png
+    - assets/slide3.jpg
+    - assets/slide3.1.jpg
+    - assets/slide4.jpg
+    - assets/slide4.1.jpg
+    - assets/doh.png
