@@ -2,4 +2,4 @@
 
 This project used different tech stack from the original project. Improvements and recommendations are hereby applied in this project.
 
-TANGINA NYO MGA KUPAL PAKYU MGA ANIMAL.
+
