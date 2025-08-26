@@ -22,6 +22,25 @@ class _RegistrationStepperState extends State<RegistrationStepper> {
     final registrationProvider = Provider.of<RegistrationProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     
+    // Validate all steps before submission
+    if (!registrationProvider.isStep1Valid()) {
+      _showErrorMessage('Please complete all required fields in Personal Information.');
+      setState(() => _isSubmitting = false);
+      return;
+    }
+    
+    if (!registrationProvider.isStep2Valid()) {
+      _showErrorMessage('Please complete all required fields in PWD Details.');
+      setState(() => _isSubmitting = false);
+      return;
+    }
+    
+    if (!registrationProvider.isStep3Valid()) {
+      _showErrorMessage('Please complete all required fields in Account Setup.');
+      setState(() => _isSubmitting = false);
+      return;
+    }
+    
     final userData = registrationProvider.getAllData();
     final success = await authProvider.register(userData);
     
@@ -31,9 +50,30 @@ class _RegistrationStepperState extends State<RegistrationStepper> {
       registrationProvider.reset();
       Navigator.of(context).pushReplacementNamed('/dashboard');
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration failed. Please try again.')),
-      );
+      _showErrorMessage('Registration failed. Please try again.');
+    }
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  bool _canProceedToNextStep(RegistrationProvider provider) {
+    switch (provider.currentStep) {
+      case 0:
+        return provider.isStep1Valid();
+      case 1:
+        return provider.isStep2Valid();
+      case 2:
+        return provider.isStep3Valid();
+      default:
+        return false;
     }
   }
 
@@ -41,8 +81,8 @@ class _RegistrationStepperState extends State<RegistrationStepper> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registration'),
-        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        title: const Text('PWD Registration'),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
       body: Consumer<RegistrationProvider>(
         builder: (context, provider, _) {
@@ -71,13 +111,15 @@ class _RegistrationStepperState extends State<RegistrationStepper> {
                                   height: 20,
                                   child: CircularProgressIndicator(strokeWidth: 2),
                                 )
-                              : const Text('Submit'),
+                              : const Text('Submit Registration'),
                         ),
                       )
                     else
                       Expanded(
                         child: FilledButton(
-                          onPressed: provider.nextStep,
+                          onPressed: _canProceedToNextStep(provider) 
+                              ? provider.nextStep 
+                              : null,
                           child: const Text('Next'),
                         ),
                       ),
@@ -98,20 +140,29 @@ class _RegistrationStepperState extends State<RegistrationStepper> {
                 title: const Text('Personal Information'),
                 content: const PersonalInfoStep(),
                 isActive: provider.currentStep >= 0,
-                state: provider.currentStep > 0 ? StepState.complete : StepState.indexed,
+                state: provider.currentStep > 0 
+                    ? StepState.complete 
+                    : provider.isStep1Valid() 
+                        ? StepState.indexed 
+                        : StepState.indexed,
               ),
               Step(
-                title: const Text('PWD Details'),
+                title: const Text('PWD Details & Address'),
                 content: const PwdDetailsStep(),
                 isActive: provider.currentStep >= 1,
-                state: provider.currentStep > 1 ? StepState.complete : 
-                       provider.currentStep == 1 ? StepState.indexed : StepState.disabled,
+                state: provider.currentStep > 1 
+                    ? StepState.complete 
+                    : provider.currentStep == 1 
+                        ? StepState.indexed 
+                        : StepState.disabled,
               ),
               Step(
                 title: const Text('Account Setup'),
                 content: const AccountSetupStep(),
                 isActive: provider.currentStep >= 2,
-                state: provider.currentStep == 2 ? StepState.indexed : StepState.disabled,
+                state: provider.currentStep == 2 
+                    ? StepState.indexed 
+                    : StepState.disabled,
               ),
             ],
           );
