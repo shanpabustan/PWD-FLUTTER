@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: MaterialApp(
-        title: 'PWD Digital ID',
+        title: 'PDAO',
         theme: ThemeData(
           useMaterial3: true,
           // Use the ColorScheme to define a consistent palette
